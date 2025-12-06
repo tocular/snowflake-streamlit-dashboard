@@ -5,7 +5,7 @@ Snowflake Analytics Dashboard
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from datetime import datetime, timedelta
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 # Page Configuration
@@ -14,15 +14,6 @@ st.set_page_config(
     page_icon="❄️",
     layout="wide",
 )
-
-# Custom CSS to reduce metric font sizes
-st.markdown("""
-    <style>
-    [data-testid="stMetricValue"] {
-        font-size: 20px;
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 # Load Data Function with caching
 @st.cache_data(ttl=3600)
@@ -93,6 +84,24 @@ def format_currency(value):
     else:
         return f"${value:,.0f}"
 
+def build_anomaly_hover_text(row):
+    """Build hover text for a single anomaly data row."""
+    text = (
+        f"<b>{row['country']}</b><br>"
+        f"Anomaly Score: {row['anomaly_score']:.1f}/100<br>"
+        f"Severity: {row['anomaly_severity']}<br>"
+        f"<br>"
+        f"Revenue: ${row['total_revenue']:,.0f}<br>"
+        f"Revenue Z-Score: {row['revenue_zscore']:.2f}<br>"
+        f"Orders: {row['order_count']:,}<br>"
+        f"Customers: {row['unique_customers']:,}<br>"
+    )
+    if pd.notna(row['revenue_mom_change']):
+        text += f"MoM Revenue Change: {row['revenue_mom_change']:.1f}%<br>"
+    text += f"<br><b>Anomalies:</b> {row['anomaly_types']}"
+    return text
+
+
 def create_geographic_anomaly_map(df, selected_month):
     """
     Create interactive choropleth map showing geographic anomalies
@@ -108,31 +117,7 @@ def create_geographic_anomaly_map(df, selected_month):
     if len(map_data) == 0:
         return None
 
-    # Create custom hover text
-    map_data['hover_text'] = map_data.apply(lambda row:
-        f"<b>{row['country']}</b><br>" +
-        f"Anomaly Score: {row['anomaly_score']:.1f}/100<br>" +
-        f"Severity: {row['anomaly_severity']}<br>" +
-        f"<br>" +
-        f"Revenue: ${row['total_revenue']:,.0f}<br>" +
-        f"Revenue Z-Score: {row['revenue_zscore']:.2f}<br>" +
-        f"Orders: {row['order_count']:,}<br>" +
-        f"Customers: {row['unique_customers']:,}<br>" +
-        f"MoM Revenue Change: {row['revenue_mom_change']:.1f}%<br>" +
-        f"<br>" +
-        f"<b>Anomalies:</b> {row['anomaly_types']}"
-        if pd.notna(row['revenue_mom_change'])
-        else f"<b>{row['country']}</b><br>" +
-        f"Anomaly Score: {row['anomaly_score']:.1f}/100<br>" +
-        f"Severity: {row['anomaly_severity']}<br>" +
-        f"<br>" +
-        f"Revenue: ${row['total_revenue']:,.0f}<br>" +
-        f"Revenue Z-Score: {row['revenue_zscore']:.2f}<br>" +
-        f"Orders: {row['order_count']:,}<br>" +
-        f"Customers: {row['unique_customers']:,}<br>" +
-        f"<br>" +
-        f"<b>Anomalies:</b> {row['anomaly_types']}"
-    , axis=1)
+    map_data['hover_text'] = map_data.apply(build_anomaly_hover_text, axis=1)
 
     # Create choropleth map
     fig = go.Figure(data=go.Choropleth(
@@ -196,10 +181,51 @@ def create_geographic_anomaly_map(df, selected_month):
 def main():
     # Header
     st.title("❄️ Snowflake Dashboard")
-    st.caption("Executive reporting dashboard charting data from Snowflake's tutorial database. The database simulates an industrials firm with a global customer base in the 1990s")
+    st.caption("Executive reporting dashboard charting data from Snowflake's sample TPC-H dataset. The database simulates an industrials firm with a global customer base in the 1990s")
+
+    # ========================================
+    # NAVIGATION TOOLBAR
+    # ========================================
+
+    # Custom CSS for navigation pills
+    st.markdown("""
+        <style>
+        .nav-pill {
+            display: inline-block;
+            padding: 8px 20px;
+            margin: 5px;
+            background-color: #0e1117;
+            border: 1px solid #262730;
+            border-radius: 20px;
+            color: #fafafa;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .nav-pill:hover {
+            border-color: #1f77b4;
+            background-color: #1a1d24;
+        }
+        .nav-container {
+            text-align: left;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Navigation buttons
+    st.markdown("""
+        <div class="nav-container">
+            <a class="nav-pill" href="#geographic-anomaly-detection">Geographic Anomalies</a>
+            <a class="nav-pill" href="#product-revenue">Product Revenue</a>
+            <a class="nav-pill" href="#monthly-revenue-time-series">Revenue Trends</a>
+            <a class="nav-pill" href="#raw-data">Raw Data</a>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Add line break between charts
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    
+
     # ========================================
     # GEOGRAPHIC ANOMALY DETECTION
     # ========================================
@@ -210,7 +236,8 @@ def main():
     st.markdown("<br>", unsafe_allow_html=True)
 
     # Load anomaly data
-    anomaly_data, anomaly_error = load_geographic_anomaly_data()
+    with st.spinner("Loading geographic anomaly data..."):
+        anomaly_data, anomaly_error = load_geographic_anomaly_data()
 
     if anomaly_error:
         st.error(f"Error loading anomaly data: {anomaly_error}")
@@ -232,7 +259,7 @@ def main():
 
         with anomaly_cols[0]:
             # Anomaly summary metrics
-            with st.container(border=True, height=270):
+            with st.container(border=True, height=350):
                 st.markdown("**🚨 Anomaly Summary**")
 
                 # Count anomalies by severity
@@ -265,14 +292,11 @@ def main():
                     st.plotly_chart(fig_map, use_container_width=True)
                 else:
                     st.info("No data available for the selected month.")
-                
+
                 # Display centered caption below slider
                 st.markdown('<div style="text-align: center;"><span style="color: #808495; font-size: 14px;">Select Month</span></div>', unsafe_allow_html=True)
 
                 # Month slider below the map
-                # Add negative margin to bring slider closer to map
-                st.markdown('<div style="margin-top: -10000000px;"></div>', unsafe_allow_html=True)
-
                 # Use select_slider with month labels for better visualization
                 selected_month_label = st.select_slider(
                     "",
@@ -301,12 +325,13 @@ def main():
     # ========================================
 
     # Second chart: Product Revenue by Country
-    st.subheader("Product revenue by product type and country")
+    st.subheader("Product revenue")
     st.caption("Compare sales by product type in each country")
     st.markdown("<br>", unsafe_allow_html=True)
 
     # Load product data
-    product_data, product_error = load_product_data()
+    with st.spinner("Loading product revenue data..."):
+        product_data, product_error = load_product_data()
 
     if product_error:
         st.error(f"Error loading product data: {product_error}")
@@ -478,7 +503,8 @@ def main():
     st.markdown("<br>", unsafe_allow_html=True)
 
     # Load data
-    data, error = load_data()
+    with st.spinner("Loading revenue trend data..."):
+        data, error = load_data()
 
     if error:
         st.error(f"Error loading data: {error}")

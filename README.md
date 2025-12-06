@@ -103,7 +103,7 @@ Click "Deploy" and your app will be live in a few minutes!
 snowflake_tutorial/
 ├── dashboard.py              # Main Streamlit dashboard
 ├── dashboard.ipynb           # Jupyter notebook for data generation
-├── snowflake_engine.py       # Snowflake connection wrapper
+├── snowflake_engine.py       # Snowflake connection wrapper (used by notebooks for data generation, not by dashboard)
 ├── requirements.txt          # Python dependencies
 ├── .env.example             # Environment variable template
 ├── .gitignore               # Git ignore rules
