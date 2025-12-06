@@ -558,13 +558,9 @@ def main():
                     total_orders = filtered_data['order_count'].sum()
                     avg_revenue = filtered_data['revenue'].mean()
 
-                    # Calculate growth
-                    if len(filtered_data) >= 2:
-                        latest = filtered_data.iloc[-1]['revenue']
-                        previous = filtered_data.iloc[-2]['revenue']
-                        mom_growth = ((latest - previous) / previous * 100)
-                    else:
-                        mom_growth = 0
+                    # Calculate average MoM growth over the selected period
+                    avg_mom_growth = filtered_data['mom_growth_pct'].mean()
+                    has_mom_data = filtered_data['mom_growth_pct'].notna().any()
 
                     st.markdown("**📈 Key Metrics**")
 
@@ -572,7 +568,7 @@ def main():
                     st.metric(
                         label="Total Revenue",
                         value=format_currency(total_revenue),
-                        delta=f"{mom_growth:+.1f}% MoM" if len(filtered_data) >= 2 else None
+                        delta=f"{avg_mom_growth:.1f}% Avg MoM" if has_mom_data else None
                     )
 
                     st.metric(
@@ -607,10 +603,10 @@ def main():
                         hovertemplate='<b>%{x|%b %Y}</b><br>Revenue: $%{y:,.0f}<extra></extra>'
                     ))
 
-                    # Add 3-month moving average (cyan line for visibility)
+                    # Add 3-month moving average starting from month 3
                     fig.add_trace(go.Scatter(
-                        x=filtered_data['month'],
-                        y=filtered_data['revenue_ma3'],
+                        x=filtered_data['month'].iloc[2:],
+                        y=filtered_data['revenue_ma3'].iloc[2:],
                         mode='lines',
                         name='3-Month Moving Avg',
                         line=dict(color='cyan', width=2, dash='dot'),
