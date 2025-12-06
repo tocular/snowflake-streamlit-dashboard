@@ -147,23 +147,35 @@ The dashboard uses pre-generated CSV files for performance. To refresh data:
 
 ### Automated Data Refresh
 
-A GitHub Actions workflow (`.github/workflows/refresh_data.yml`) automates data refresh on a 15-minute schedule:
+A GitHub Actions workflow (`.github/workflows/refresh_data.yml`) automates data refresh on a monthly schedule:
 
 1. Executes the data generation notebook
-2. Commits updated CSV files to the repository
-3. Streamlit Cloud auto-redeploys on commit
+2. Checks for severe anomalies and sends Slack alerts
+3. Commits updated CSV files to the repository
+4. Streamlit Cloud auto-redeploys on commit
 
 To enable automated refresh:
 
-1. Add Snowflake credentials as repository secrets in GitHub:
+1. Add the following repository secrets in GitHub:
    - `SNOWFLAKE_USER`
    - `SNOWFLAKE_PASSWORD`
    - `SNOWFLAKE_ACCOUNT`
    - `SNOWFLAKE_WAREHOUSE`
    - `SNOWFLAKE_DATABASE`
    - `SNOWFLAKE_SCHEMA`
+   - `SLACK_WEBHOOK_URL` (optional, for alerts)
 
-2. The workflow runs automatically every 15 minutes, or can be triggered manually from the Actions tab.
+2. The workflow runs automatically on the 1st of each month, or can be triggered manually from the Actions tab.
+
+### Slack Alerting
+
+When severe anomalies are detected during data refresh, the system sends a Slack notification with:
+- Number of severe anomalies
+- Affected countries with scores and revenue figures
+
+To set up Slack alerts:
+1. Create an Incoming Webhook in your Slack workspace
+2. Add the webhook URL as `SLACK_WEBHOOK_URL` in GitHub repository secrets
 
 ### Anomaly Detection Algorithm
 
