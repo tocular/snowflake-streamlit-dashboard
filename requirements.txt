@@ -1,0 +1,20 @@
+# Snowflake Analytics Dashboard Requirements
+# Install with: pip install -r requirements.txt
+
+# Core Snowflake connectivity
+snowflake-connector-python>=3.0.0
+snowflake-sqlalchemy>=1.5.0
+
+# Database and data manipulation
+sqlalchemy>=2.0.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Visualization
+plotly>=5.14.0
+streamlit>=1.28.0
+
+# Utilities
+python-dotenv>=1.0.0  # For managing environment variables
+pyarrow>=12.0.0       # Faster data transfer with Snowflake
+python-dateutil>=2.8.0  # Date manipulation for dashboard
