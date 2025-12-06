@@ -145,6 +145,26 @@ The dashboard uses pre-generated CSV files for performance. To refresh data:
 2. Run all cells to regenerate CSV files in `tables/`
 3. Restart the Streamlit app to load fresh data
 
+### Automated Data Refresh
+
+A GitHub Actions workflow (`.github/workflows/refresh_data.yml`) automates data refresh on a 15-minute schedule:
+
+1. Executes the data generation notebook
+2. Commits updated CSV files to the repository
+3. Streamlit Cloud auto-redeploys on commit
+
+To enable automated refresh:
+
+1. Add Snowflake credentials as repository secrets in GitHub:
+   - `SNOWFLAKE_USER`
+   - `SNOWFLAKE_PASSWORD`
+   - `SNOWFLAKE_ACCOUNT`
+   - `SNOWFLAKE_WAREHOUSE`
+   - `SNOWFLAKE_DATABASE`
+   - `SNOWFLAKE_SCHEMA`
+
+2. The workflow runs automatically every 15 minutes, or can be triggered manually from the Actions tab.
+
 ### Anomaly Detection Algorithm
 
 Geographic anomalies are calculated using:
