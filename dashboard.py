@@ -137,43 +137,49 @@ def create_geographic_anomaly_map(df, selected_month):
         marker_line_color='white',
         marker_line_width=0.5,
         colorbar=dict(
-            title="Anomaly Score",
-            thickness=15,
-            len=0.5,
-            orientation='h',
-            x=0.5,
-            xanchor='center',
-            y=0.915,
-            yanchor='bottom',
+            title=dict(text="Anomaly Score", font=dict(size=11)),
+            thickness=12,
+            len=0.9,
+            orientation='v',
+            x=1.0,
+            xanchor='left',
+            y=0.5,
+            yanchor='middle',
             tickvals=[12.5, 37.5, 62.5, 87.5],
-            ticktext=['Normal', 'Minor', 'Moderate', 'Severe']
+            ticktext=['Normal', 'Minor', 'Moderate', 'Severe'],
+            tickfont=dict(size=10)
         )
     ))
 
-    # Update layout
+    # Update layout - compact design with fixed aspect ratio
     fig.update_layout(
         title={
             'text': f'Geographic Anomaly Detection<br><span style="font-size: 14px; color: #888;">{selected_month.strftime("%B %Y")}</span>',
-            'font': {'size': 20},
-            'x': 0.0,
-            'xanchor': 'left'
+            'font': {'size': 20}
         },
         geo=dict(
-            projection_type='robinson',
+            projection_type='natural earth',
             showland=True,
             landcolor='#1a1a1a',
             showocean=True,
             oceancolor='#0a0a0a',
             showcountries=True,
             countrycolor='#333',
-            showlakes=True,
-            lakecolor='#0a0a0a',
-            bgcolor='rgba(0,0,0,0)'
+            showlakes=False,
+            showframe=False,
+            bgcolor='rgba(0,0,0,0)',
+            # Crop to focus on data regions (eliminates polar negative space)
+            lataxis=dict(range=[-50, 70]),
+            lonaxis=dict(range=[-125, 155]),
+            # Push map down to create space below title
+            domain=dict(x=[0, 1], y=[0, 0.92])
         ),
-        height=650,
+        height=420,
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
-        margin=dict(l=0, r=0, t=50, b=0)
+        margin=dict(l=0, r=40, t=70, b=0),
+        # Lock the aspect ratio so it renders identically everywhere
+        autosize=False
     )
 
     return fig
@@ -181,7 +187,7 @@ def create_geographic_anomaly_map(df, selected_month):
 def main():
     # Header
     st.title("❄️ Snowflake Dashboard")
-    st.caption("Executive reporting dashboard charting data from Snowflake's sample TPC-H dataset. The database simulates an industrials firm with a global customer base in the 1990s")
+    st.caption("Dashboard charting data from Snowflake's sample TPC-H dataset. The database simulates an industrials firm with a global customer base in the 1990s")
 
     # ========================================
     # NAVIGATION TOOLBAR
@@ -232,7 +238,7 @@ def main():
 
     # First chart: Geographic Anomaly Detection
     st.subheader("Geographic Anomaly Detection")
-    st.caption("Real-time detection of unusual patterns in country-level revenue and operations")
+    st.caption("Flagging unusual patterns in country-level performance")
     st.markdown("<br>", unsafe_allow_html=True)
 
     # Load anomaly data
@@ -258,7 +264,7 @@ def main():
         month_data = anomaly_data[anomaly_data['month'] == selected_anomaly_month]
 
         with anomaly_cols[0]:
-            # Anomaly summary metrics
+            # Anomaly Summary container
             with st.container(border=True, height=350):
                 st.markdown("**🚨 Anomaly Summary**")
 
@@ -271,17 +277,16 @@ def main():
                 st.metric("Moderate Anomalies", moderate_count)
                 st.metric("Minor Anomalies", minor_count)
 
-            # Top anomalous country
-            with st.container(border=True, height=150):
+            # Top Anomaly container
+            with st.container(border=True, height=174):
                 st.markdown("**🔴 Top Anomaly**")
-
                 if len(month_data) > 0:
                     top_anomaly = month_data.nlargest(1, 'anomaly_score').iloc[0]
-                    st.markdown(f"{top_anomaly['country']}")
+                    st.markdown(f"**{top_anomaly['country']}**")
                     st.caption(f"Score: {top_anomaly['anomaly_score']:.1f}/100")
 
         with anomaly_cols[1]:
-            with st.container(border=True):
+            with st.container(border=True, height=540):
                 # Create and display the map
                 fig_map = create_geographic_anomaly_map(
                     anomaly_data,
@@ -289,28 +294,20 @@ def main():
                 )
 
                 if fig_map is not None:
-                    st.plotly_chart(fig_map, use_container_width=True)
+                    st.plotly_chart(fig_map, use_container_width=True, config={'displayModeBar': False})
                 else:
                     st.info("No data available for the selected month.")
 
-                # Display centered caption below slider
-                st.markdown('<div style="text-align: center;"><span style="color: #808495; font-size: 14px;">Select Month</span></div>', unsafe_allow_html=True)
-
                 # Month slider below the map
-                # Use select_slider with month labels for better visualization
                 selected_month_label = st.select_slider(
-                    "",
+                    "Select Month",
                     options=month_labels,
                     value=month_labels[st.session_state.anomaly_month_index],
-                    label_visibility="collapsed",
                     key="anomaly_month_slider"
                 )
 
                 # Get the index from the selected label
                 selected_index = month_labels.index(selected_month_label)
-
-                # Add spacing at the bottom
-                st.markdown("<br>", unsafe_allow_html=True)
 
                 # Update session state if slider changed
                 if selected_index != st.session_state.anomaly_month_index:
