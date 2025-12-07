@@ -1,6 +1,6 @@
 # Snowflake Analytics Dashboard
 
-Executive analytics dashboard built with Streamlit and Snowflake, featuring geographic anomaly detection, product revenue analysis, and time series trends.
+Dashboard built with Streamlit and Snowflake, featuring geographic anomaly detection, product revenue analysis, and time series trends.
 
 ## Features
 
@@ -36,8 +36,7 @@ pip install -r requirements.txt
 
 3. Set up environment variables:
 ```bash
-cp .env.example .env
-# Edit .env with your Snowflake credentials
+cp .env
 ```
 
 4. Generate data files:
@@ -173,33 +172,17 @@ To set up Slack alerts:
 1. Create an Incoming Webhook in your Slack workspace
 2. Add the webhook URL as `SLACK_WEBHOOK_URL` in GitHub repository secrets
 
-### Anomaly Detection Algorithm
-
-Geographic anomalies are calculated using:
-- **Z-scores**: Statistical deviation from country mean
-- **Month-over-Month changes**: Revenue growth rate analysis
-- **Correlation breakdown**: Pattern deviation detection
-- **IQR outliers**: Interquartile range anomaly identification
-
-Severity categories (quartile-based):
-- **Normal** (0-25): Typical variation
-- **Minor** (25-50): Slight deviation
-- **Moderate** (50-75): Notable anomaly
-- **Severe** (75-100): Significant deviation
-
 ## Security
 
 - Credentials are never committed to git (see `.gitignore`)
 - Environment variables are loaded via `python-dotenv`
 - Streamlit Cloud secrets are encrypted at rest
-- Follow `SECURITY_INSTRUCTIONS.md` for credential rotation
 
 ## Performance
 
 - CSV caching with 1-hour TTL (`@st.cache_data`)
 - Product data aggregation to reduce dataset size
 - Natural Earth projection for optimized map rendering
-- Efficient Plotly visualizations
 
 ## Troubleshooting
 
