@@ -107,14 +107,9 @@ snowflake_tutorial/
 │   ├── config.toml           # Streamlit configuration
 │   └── secrets.toml.example  # Secrets template
 └── tables/                   # Generated CSV data files
-    ├── geographic_anomalies.csv
-    ├── product_revenue_by_country.csv
-    ├── product_revenue_by_country.csv.gz
     ├── revenue_trend.csv
-    ├── customer_segments.csv
-    ├── fulfillment_metrics.csv
-    ├── geographic_revenue.csv
-    └── top_customers.csv
+    ├── product_revenue_by_country.csv
+    └── geographic_anomalies.csv
 ```
 
 ## Configuration
