@@ -9,14 +9,6 @@ Executive analytics dashboard built with Streamlit and Snowflake, featuring geog
 - **Monthly Revenue Trends**: Time series analysis with 3-month moving averages
 - **Raw Data Explorer**: Tabbed interface to browse underlying datasets
 
-## Live Demo
-
-[Deploy to Streamlit Community Cloud to get your live URL]
-
-## Screenshots
-
-[Add screenshots after deployment]
-
 ## Data Source
 
 This dashboard uses Snowflake's sample TPC-H dataset (`SNOWFLAKE_SAMPLE_DATA.TPCH_SF1`), which simulates an industrials firm with global operations in the 1990s.
@@ -202,7 +194,7 @@ Severity categories (quartile-based):
 
 - CSV caching with 1-hour TTL (`@st.cache_data`)
 - Product data aggregation to reduce dataset size
-- Robinson projection for optimized map rendering
+- Natural Earth projection for optimized map rendering
 - Efficient Plotly visualizations
 
 ## Troubleshooting

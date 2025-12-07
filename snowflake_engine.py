@@ -20,17 +20,7 @@ class SnowflakeEngine:
         ))
     
     def query(self, sql, params=None):
-        """
-        Execute query and return DataFrame
-        Properly handles multi-line SQL queries
-        
-        Args:
-            sql (str): SQL query (can be multi-line)
-            params (dict): Optional parameters for parameterized queries
-            
-        Returns:
-            pd.DataFrame: Query results
-        """
+        """Execute SQL query and return results as DataFrame."""
         # Always wrap in text() for consistent handling
         if params:
             return pd.read_sql(text(sql), self.engine, params=params)
@@ -38,13 +28,7 @@ class SnowflakeEngine:
             return pd.read_sql(text(sql), self.engine)
     
     def execute(self, sql, params=None):
-        """
-        Execute query without returning results (INSERT, UPDATE, DELETE, etc.)
-        
-        Args:
-            sql (str): SQL statement (can be multi-line)
-            params (dict): Optional parameters
-        """
+        """Execute SQL statement without returning results."""
         with self.engine.connect() as conn:
             if params:
                 conn.execute(text(sql), params)
@@ -68,21 +52,3 @@ class SnowflakeEngine:
         """Dispose of the engine"""
         self.engine.dispose()
         print("Connection closed")
-        
-
-### USAGE
-#sf = SnowflakeEngine()
-#sf.test_connection()
-
-# Query without warnings
-#df = sf.query("SELECT * FROM CUSTOMER LIMIT 10")
-#print(df)
-
-# Query with parameters
-#df = sf.query(
-#    "SELECT * FROM ORDERS WHERE O_ORDERSTATUS = :status LIMIT 10",
-#    params={'status': 'F'}
-#)
-#print(df)
-
-#sf.close()

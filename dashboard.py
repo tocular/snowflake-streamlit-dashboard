@@ -103,13 +103,7 @@ def build_anomaly_hover_text(row):
 
 
 def create_geographic_anomaly_map(df, selected_month):
-    """
-    Create interactive choropleth map showing geographic anomalies
-
-    Parameters:
-    - df: DataFrame with anomaly scores and country codes
-    - selected_month: Specific month to display
-    """
+    """Create choropleth map showing geographic anomalies for a given month."""
 
     # Filter to selected month
     map_data = df[df['month'] == selected_month].copy()
