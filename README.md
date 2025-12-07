@@ -95,17 +95,26 @@ Click "Deploy" and your app will be live in a few minutes!
 snowflake_tutorial/
 ├── dashboard.py              # Main Streamlit dashboard
 ├── dashboard.ipynb           # Jupyter notebook for data generation
-├── snowflake_engine.py       # Snowflake connection wrapper (used by notebooks for data generation, not by dashboard)
+├── snowflake_engine.py       # Snowflake connection wrapper
+├── alerts.py                 # Slack alerting for severe anomalies
 ├── requirements.txt          # Python dependencies
-├── .env.example             # Environment variable template
-├── .gitignore               # Git ignore rules
+├── .gitignore
+├── .env                      # Local environment variables (not committed)
+├── .github/
+│   └── workflows/
+│       └── refresh_data.yml  # Automated monthly data refresh
 ├── .streamlit/
-│   └── config.toml          # Streamlit configuration
-├── tables/                  # Generated CSV data files
-│   ├── geographic_anomalies.csv
-│   ├── product_revenue_by_country.csv
-│   └── revenue_trend.csv
-└── scripts/                 # Example scripts and utilities
+│   ├── config.toml           # Streamlit configuration
+│   └── secrets.toml.example  # Secrets template
+└── tables/                   # Generated CSV data files
+    ├── geographic_anomalies.csv
+    ├── product_revenue_by_country.csv
+    ├── product_revenue_by_country.csv.gz
+    ├── revenue_trend.csv
+    ├── customer_segments.csv
+    ├── fulfillment_metrics.csv
+    ├── geographic_revenue.csv
+    └── top_customers.csv
 ```
 
 ## Configuration
