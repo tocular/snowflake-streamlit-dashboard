@@ -184,47 +184,51 @@ def main():
     st.caption("Dashboard charting data from Snowflake's sample TPC-H dataset. The database simulates an industrials firm with a global customer base in the 1990s")
 
     # ========================================
-    # NAVIGATION TOOLBAR
+    # NAVIGATION SIDEBAR
     # ========================================
 
-    # Custom CSS for navigation pills
+    # Custom CSS for sidebar styling
     st.markdown("""
         <style>
-        .nav-pill {
-            display: inline-block;
-            padding: 8px 20px;
-            margin: 5px;
+        /* Sidebar background and border */
+        [data-testid="stSidebar"] {
             background-color: #0e1117;
+            border-right: 1px solid #262730;
+        }
+        [data-testid="stSidebar"] > div:first-child {
+            background-color: #0e1117;
+        }
+        /* Navigation link styling */
+        .nav-link, .nav-link:visited, .nav-link:active {
+            display: block;
+            padding: 12px 16px;
+            margin: 8px 0;
+            background-color: transparent;
             border: 1px solid #262730;
-            border-radius: 20px;
-            color: #fafafa;
-            text-decoration: none;
+            border-radius: 8px;
+            color: #ffffff !important;
+            text-decoration: none !important;
             font-size: 14px;
             transition: all 0.3s ease;
-            cursor: pointer;
         }
-        .nav-pill:hover {
+        .nav-link:hover {
             border-color: #1f77b4;
             background-color: #1a1d24;
-        }
-        .nav-container {
-            text-align: left;
+            color: #ffffff !important;
+            text-decoration: none !important;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Navigation buttons
-    st.markdown("""
-        <div class="nav-container">
-            <a class="nav-pill" href="#geographic-anomaly-detection">Geographic Anomalies</a>
-            <a class="nav-pill" href="#product-revenue">Product Revenue</a>
-            <a class="nav-pill" href="#monthly-revenue-time-series">Revenue Trends</a>
-            <a class="nav-pill" href="#raw-data">Raw Data</a>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # Add line break between charts
-    st.markdown("<br>", unsafe_allow_html=True)
+    # Sidebar navigation
+    with st.sidebar:
+        st.markdown("# ❄️  Navigation")
+        st.markdown("""
+            <a class="nav-link" href="#geographic-anomaly-detection">Geographic Anomalies</a>
+            <a class="nav-link" href="#product-revenue">Product Revenue</a>
+            <a class="nav-link" href="#monthly-revenue-time-series">Revenue Trends</a>
+            <a class="nav-link" href="#raw-data">Raw Data</a>
+        """, unsafe_allow_html=True)
 
     # ========================================
     # GEOGRAPHIC ANOMALY DETECTION
@@ -260,7 +264,7 @@ def main():
         with anomaly_cols[0]:
             # Anomaly Summary container
             with st.container(border=True, height=350):
-                st.markdown("**🚨 Anomaly Summary**")
+                st.markdown("**Anomaly Summary**")
 
                 # Count anomalies by severity
                 severe_count = len(month_data[month_data['anomaly_severity'] == 'Severe'])
@@ -273,7 +277,7 @@ def main():
 
             # Top Anomaly container
             with st.container(border=True, height=174):
-                st.markdown("**🔴 Top Anomaly**")
+                st.markdown("**Top Anomaly**")
                 if len(month_data) > 0:
                     top_anomaly = month_data.nlargest(1, 'anomaly_score').iloc[0]
                     st.markdown(f"**{top_anomaly['country']}**")
@@ -288,7 +292,7 @@ def main():
                 )
 
                 if fig_map is not None:
-                    st.plotly_chart(fig_map, use_container_width=True, config={'displayModeBar': False})
+                    st.plotly_chart(fig_map, width='stretch', config={'displayModeBar': False})
                 else:
                     st.info("No data available for the selected month.")
 
@@ -334,7 +338,7 @@ def main():
         with prod_cols[0]:
             # Country selector
             with st.container(border=True, height=178):
-                st.markdown("**🌍 Country Selection**")
+                st.markdown("**Country Selection**")
 
                 # Get list of countries
                 countries = sorted(product_data['country'].unique())
@@ -352,7 +356,7 @@ def main():
 
             # Product type selector
             with st.container(border=True, height=406):
-                st.markdown("**📦 Product Types**")
+                st.markdown("**Product Types**")
 
                 # Get unique product types
                 product_types = sorted(product_data['product_type'].unique())
@@ -364,11 +368,11 @@ def main():
                 # Select all / deselect all buttons
                 col1, col2 = st.columns(2)
                 with col1:
-                    if st.button("Select All", use_container_width=True):
+                    if st.button("Select All", width='stretch'):
                         st.session_state.selected_products = product_types
                         st.rerun()
                 with col2:
-                    if st.button("Clear All", use_container_width=True):
+                    if st.button("Clear All", width='stretch'):
                         st.session_state.selected_products = []
                         st.rerun()
 
@@ -475,7 +479,7 @@ def main():
                             )
                         )
 
-                        st.plotly_chart(fig_products, use_container_width=True)
+                        st.plotly_chart(fig_products, width='stretch')
                     else:
                         st.info("No data available for the selected country and products.")
                 else:
@@ -526,7 +530,7 @@ def main():
                 }
 
                 # Create pills for time range selection
-                st.markdown("**🕰️ Time Range**")
+                st.markdown("**Time Range**")
                 selected_label = st.pills(
                     "",
                     options=list(time_ranges.keys()),
@@ -553,7 +557,7 @@ def main():
                     avg_mom_growth = filtered_data['mom_growth_pct'].mean()
                     has_mom_data = filtered_data['mom_growth_pct'].notna().any()
 
-                    st.markdown("**📈 Key Metrics**")
+                    st.markdown("**Key Metrics**")
 
                     # Metric cards
                     st.metric(
@@ -573,7 +577,7 @@ def main():
                     )
 
                     # Date range info
-                    st.markdown("**📅 Period**")
+                    st.markdown("**Period**")
                     st.markdown(f"{filtered_data['month'].min().strftime('%b %Y')} - {filtered_data['month'].max().strftime('%b %Y')}")
 
         # Right column: Main chart
@@ -637,7 +641,7 @@ def main():
                     )
 
                     # Display chart with full width
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
                 else:
                     st.info("No data available for the selected time range.")
     
@@ -670,7 +674,7 @@ def main():
             # Display dataframe with formatting
             st.dataframe(
                 anomaly_data[available_cols].sort_values(['month', 'country'], ascending=[False, True]),
-                use_container_width=True,
+                width='stretch',
                 hide_index=True
             )
         else:
@@ -698,7 +702,7 @@ def main():
             # Display dataframe
             st.dataframe(
                 product_summary[available_cols].sort_values(['month', 'country', 'product_type'], ascending=[False, True, True]),
-                use_container_width=True,
+                width='stretch',
                 hide_index=True
             )
         else:
@@ -720,7 +724,7 @@ def main():
             # Display dataframe
             st.dataframe(
                 data[available_cols].sort_values('month', ascending=False),
-                use_container_width=True,
+                width='stretch',
                 hide_index=True
             )
         else:
