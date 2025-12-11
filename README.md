@@ -2,6 +2,8 @@
 
 Dashboard built with Streamlit and Snowflake, featuring geographic anomaly detection, product revenue analysis, and time series trends.
 
+[Link here](https://hyqgk38rqtbywxqnwhjkuh.streamlit.app/)
+
 ## Features
 
 - **Geographic Anomaly Detection**: Interactive world map showing revenue anomalies by country with severity scoring
